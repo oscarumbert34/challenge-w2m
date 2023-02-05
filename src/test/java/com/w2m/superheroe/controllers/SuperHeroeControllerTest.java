@@ -48,7 +48,7 @@ public class SuperHeroeControllerTest {
     @Test
     public void whenGetSuperHeroeAllIsOk() throws Exception {
 
-        when(superHeroeService.finAll()).thenReturn(utilsTest.buildSuperheroeDTOS());
+        when(superHeroeService.findAll()).thenReturn(utilsTest.buildSuperheroeDTOS());
 
         mockMvc.perform(get("/super-heroes").contentType(MediaType.APPLICATION_JSON )
                         .header("Authorization", "Bearer " + getToken()))
@@ -58,9 +58,9 @@ public class SuperHeroeControllerTest {
     }
 
     @Test
-    public void whenGetSuperHeroeAllIsOk() throws Exception {
+    public void whenGetSuperHeroeNameLikeIsOk() throws Exception {
 
-        when(superHeroeService.findByNameLike()).thenReturn(utilsTest.buildSuperheroeDTOS());
+        when(superHeroeService.findByNameLike("MAN")).thenReturn(utilsTest.buildSuperheroeDTOS());
 
         mockMvc.perform(get("/super-heroes/SUPERMAN").contentType(MediaType.APPLICATION_JSON )
                         .header("Authorization", "Bearer " + getToken()))

@@ -75,7 +75,7 @@ public class SuperHeroeServiceTest {
     public void whenFindAllReturnEmpty(){
         when(superHeroeRepository.findAll()).thenReturn(List.of());
 
-        List<SuperHeroe> superHeroes = superHeroeService.findAll();
+        List<SuperHeroeDTO> superHeroes = superHeroeService.findAll();
         assertEquals(superHeroes.size(), 0);
     }
 
@@ -83,9 +83,9 @@ public class SuperHeroeServiceTest {
     @DisplayName("Validar que se devuelve una lista de Superheroe con el nombre pasado por parametro")
     public void whenFindNameLikeReturnSuperHeroes(){
         String name = "man";
-        when(superHeroeRepository.findByNameLike()).thenReturn(utilsTest.buildSuperheroes());
+        when(superHeroeRepository.findByNameLike(name)).thenReturn(utilsTest.buildSuperheroes());
 
-        List<SuperHeroe> superHeroes = superHeroeService.findByName(name);
+        List<SuperHeroeDTO> superHeroes = superHeroeService.findByNameLike(name);
         assertEquals(superHeroes.size(), 2);
 
     }
@@ -94,9 +94,9 @@ public class SuperHeroeServiceTest {
     @DisplayName("Validar que se devuelve una lista vacia de Superheroe con el nombre pasado por parametro")
     public void whenFindNameLikeReturnEmpty(){
         String name = "man";
-        when(superHeroeRepository.findByNameLike()).thenReturn(List.of());
+        when(superHeroeRepository.findByNameLike(name)).thenReturn(List.of());
 
-        List<SuperHeroe> superHeroes = superHeroeService.findByName(name);
+        List<SuperHeroeDTO> superHeroes = superHeroeService.findByNameLike(name);
         assertEquals(superHeroes.size(), 0);
 
     }
