@@ -1,6 +1,5 @@
 package com.w2m.superheroe.controllers;
 
-import com.w2m.superheroe.models.entities.SuperHeroe;
 import com.w2m.superheroe.models.entities.dtos.SuperHeroeDTO;
 import com.w2m.superheroe.services.domains.SuperHeroeService;
 import org.springframework.beans.factory.annotation.Autowired;

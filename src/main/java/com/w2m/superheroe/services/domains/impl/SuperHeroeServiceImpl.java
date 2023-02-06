@@ -9,7 +9,6 @@ import com.w2m.superheroe.services.mapper.SuperHeroMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
@@ -37,10 +36,9 @@ public class SuperHeroeServiceImpl implements SuperHeroeService {
     @Cacheable(cacheNames="superHeroeDTO", key = "#id")
     public SuperHeroeDTO findById(Long id) {
         log.info("Ejecutando SuperHeroeServiceImpl findById");
-        SuperHeroeDTO superHeroeDTO =  superHeroeRepository.findById(id)
+        return superHeroeRepository.findById(id)
                 .map(superHeroMapper::toDTO)
                 .orElseThrow(() -> new SuperHeroeException(NOT_EXIST_SUPER_HEROE_MESSAGE.replace("#", id.toString())));
-        return superHeroeDTO;
 
     }
 

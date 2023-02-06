@@ -3,13 +3,14 @@ package com.w2m.superheroe;
 import com.w2m.superheroe.models.entities.SuperHeroe;
 import com.w2m.superheroe.models.entities.dtos.SuperHeroeDTO;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
 public class UtilsTest {
     public SuperHeroe buildSuperHeroe(Long id, int year, String name){
         return SuperHeroe.builder().birthday(LocalDate.of(year,9,22))
-                .id(id).name(name).build();
+                .id(id).name(name).creationDate(Instant.now()).updateDate(Instant.now()).build();
     }
     public SuperHeroe buildSuperHeroe(){
         return buildSuperHeroe(1L, 2000,"SUPERMAN");

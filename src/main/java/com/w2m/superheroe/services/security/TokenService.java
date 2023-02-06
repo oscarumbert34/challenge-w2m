@@ -9,19 +9,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Base64;
 import java.util.stream.Collectors;
 
 @Service
 public class TokenService {
-
-    //nuevo
-    private static final int EXPIRATION_TIME = 1000 * 60 * 60;
-    private static final String AUTHORITIES = "authorities";
-    private static final String SECRET_KEY = Base64.getEncoder().encodeToString("key".getBytes());
-
-    //nuevo
-
     private final JwtEncoder encoder;
 
     public TokenService(JwtEncoder encoder) {

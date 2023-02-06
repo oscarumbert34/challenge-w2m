@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
@@ -28,7 +29,6 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -42,14 +42,14 @@ public class SecurityConfig {
     public SecurityConfig() throws NoSuchAlgorithmException {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);
-        KeyPair pair = generator.generateKeyPair();;
+        KeyPair pair = generator.generateKeyPair();
         publicKey = (RSAPublicKey) pair.getPublic();
         privateKey = (RSAPrivateKey) pair.getPrivate();
 
     }
 
     @Bean
-    JwtDecoder jwtDecoder() throws NoSuchAlgorithmException, InvalidKeySpecException {
+    JwtDecoder jwtDecoder(){
         return NimbusJwtDecoder.withPublicKey(publicKey).build();
     }
 
@@ -75,7 +75,7 @@ public class SecurityConfig {
         http.csrf().disable();
         http.headers().frameOptions().disable();
         return http
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .headers().frameOptions().disable().and()
                 .authorizeRequests( auth -> auth.antMatchers("/h2-console/**").permitAll()
                         .antMatchers("/swagger-ui/**", "/v2/api-docs","/swagger-resources","/swagger-resources/**").permitAll()
