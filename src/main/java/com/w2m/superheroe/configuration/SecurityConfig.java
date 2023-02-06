@@ -78,6 +78,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .headers().frameOptions().disable().and()
                 .authorizeRequests( auth -> auth.antMatchers("/h2-console/**").permitAll()
+                        .antMatchers("/swagger-ui/**", "/v2/api-docs","/swagger-resources","/swagger-resources/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
