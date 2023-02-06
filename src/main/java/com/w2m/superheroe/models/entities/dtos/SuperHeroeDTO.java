@@ -1,6 +1,5 @@
 package com.w2m.superheroe.models.entities.dtos;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

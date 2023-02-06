@@ -1,10 +1,14 @@
 package com.w2m.superheroe.controllers;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.w2m.superheroe.UtilsTest;
 import com.w2m.superheroe.configuration.SecurityConfig;
+import com.w2m.superheroe.models.entities.dtos.SuperHeroeDTO;
 import com.w2m.superheroe.services.domains.SuperHeroeService;
 import com.w2m.superheroe.services.security.TokenService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -14,6 +18,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -30,6 +38,13 @@ public class SuperHeroeControllerTest {
     private SuperHeroeService superHeroeService;
 
     private UtilsTest utilsTest = new UtilsTest();
+    private ObjectMapper objectMapper;
+
+    @BeforeEach
+    public void setUp(){
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+    }
 
     @Test
     public void whenGetSuperHeroeIsOk() throws Exception {
@@ -54,7 +69,13 @@ public class SuperHeroeControllerTest {
                         .header("Authorization", "Bearer " + getToken()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.size").value(2L));
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[0].name").value("SUPERMAN"))
+                .andExpect(jsonPath("$[1].name").value("SPIDERMAN"))
+                .andExpect(jsonPath("$[0].birthday").value("2000-09-22"))
+                .andExpect(jsonPath("$[1].birthday").value("1998-09-22"))
+                .andExpect(jsonPath("$", hasSize(2)));
     }
 
     @Test
@@ -62,29 +83,45 @@ public class SuperHeroeControllerTest {
 
         when(superHeroeService.findByNameLike("MAN")).thenReturn(utilsTest.buildSuperheroeDTOS());
 
-        mockMvc.perform(get("/super-heroes/SUPERMAN").contentType(MediaType.APPLICATION_JSON )
+        mockMvc.perform(get("/super-heroes/name/MAN").contentType(MediaType.APPLICATION_JSON )
                         .header("Authorization", "Bearer " + getToken()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.size").value(2L));
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[0].name").value("SUPERMAN"))
+                .andExpect(jsonPath("$[1].name").value("SPIDERMAN"))
+                .andExpect(jsonPath("$[0].birthday").value("2000-09-22"))
+                .andExpect(jsonPath("$[1].birthday").value("1998-09-22"))
+                .andExpect(jsonPath("$", hasSize(2)));
     }
 
     @Test
     public void whenUpdateSuperHeroeIsOk() throws Exception {
 
-        mockMvc.perform(patch("/super-heroes/SUPERMAN").contentType(MediaType.APPLICATION_JSON )
-                        .header("Authorization", "Bearer " + getToken()))
-                .andExpect(status().isOk())
+        SuperHeroeDTO superHeroeDTO = utilsTest.buildSuperHeroeDTO();
+        doNothing().when(superHeroeService).update(any());
+
+        mockMvc.perform(patch("/super-heroes").contentType(MediaType.APPLICATION_JSON )
+                        .header("Authorization", "Bearer " + getToken())
+                        .content(objectMapper.writeValueAsString(superHeroeDTO)))
+                .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+        verify(superHeroeService).update(any());
     }
 
     @Test
     public void whenDeleteSuperHeroeIsOk() throws Exception {
+        doNothing().when(superHeroeService).delete(1L);
 
-        mockMvc.perform(delete("/super-heroes/SUPERMAN").contentType(MediaType.APPLICATION_JSON )
+        mockMvc.perform(delete("/super-heroes/1").contentType(MediaType.APPLICATION_JSON )
                         .header("Authorization", "Bearer " + getToken()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+        verify(superHeroeService).delete(1L);
+
     }
 
     private String getToken() throws Exception {

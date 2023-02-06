@@ -7,6 +7,8 @@ import com.w2m.superheroe.models.entities.SuperHeroe;
 import com.w2m.superheroe.models.entities.dtos.SuperHeroeDTO;
 import com.w2m.superheroe.repositories.SuperHeroeRepository;
 import com.w2m.superheroe.services.domains.impl.SuperHeroeServiceImpl;
+import com.w2m.superheroe.services.mapper.SuperHeroMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,26 +18,36 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static com.w2m.superheroe.utils.Messages.NOT_EXIST_SUPER_HEROE_MESSAGE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SuperHeroeServiceTest {
 
-    private SuperHeroeService superHeroeService = new SuperHeroeServiceImpl();
-
     @Mock
     private SuperHeroeRepository superHeroeRepository;
 
+    @Mock
+    private SuperHeroMapper superHeroMapper;
+
     private UtilsTest utilsTest = new UtilsTest();
 
+    private SuperHeroeService superHeroeService;
+
+    @BeforeEach
+    public void setUp(){
+        superHeroeService = new SuperHeroeServiceImpl(superHeroeRepository, superHeroMapper);
+    }
     @Test
     @DisplayName("Validar que existe el superHeroe pasado por parametro")
     public void whenFindByExist(){
         Long id = 1L;
         SuperHeroe superHeroeMock = utilsTest.buildSuperHeroe();
-        when(superHeroeRepository.findById(id)).thenReturn(Optional.of(superHeroeMock));
+        SuperHeroeDTO superHeroeDTOMock = utilsTest.buildSuperHeroeDTO();
 
+        when(superHeroeRepository.findById(id)).thenReturn(Optional.of(superHeroeMock));
+        when(superHeroMapper.toDTO(superHeroeMock)).thenReturn(superHeroeDTOMock);
         SuperHeroeDTO superHeroeDTO = superHeroeService.findById(id);
 
         assertAll(() -> assertEquals(superHeroeDTO.getId(), superHeroeMock.getId()),
@@ -54,20 +66,27 @@ public class SuperHeroeServiceTest {
         });
 
         String actual = exception.getMessage();
-        String expected = "El super heroe con el id 1 no existe";
+        String expected = NOT_EXIST_SUPER_HEROE_MESSAGE.replace("#","1");
         assertEquals(expected, actual);
-
-
     }
 
     @Test
     @DisplayName("Validar que se devuelve una lista de Superheroe que estan en la base")
     public void whenFindAllReturnSuperHeroes(){
-        when(superHeroeRepository.findAll()).thenReturn(utilsTest.buildSuperheroes());
+        List<SuperHeroe> superHeroes = utilsTest.buildSuperheroes();
+        List<SuperHeroeDTO> superHeroesDTOMocks = utilsTest.buildSuperheroeDTOS();
+
+        when(superHeroeRepository.findAll()).thenReturn(superHeroes);
+        when(superHeroMapper.toDTO(superHeroes)).thenReturn(superHeroesDTOMocks);
 
         List<SuperHeroeDTO> superHeroeDTOS = superHeroeService.findAll();
         assertEquals(superHeroeDTOS.size(), 2);
-
+        assertAll(() -> assertEquals(superHeroeDTOS.get(0).getId(), superHeroesDTOMocks.get(0).getId()),
+                () -> assertEquals(superHeroeDTOS.get(0).getBirthday(), superHeroesDTOMocks.get(0).getBirthday()),
+                () -> assertEquals(superHeroeDTOS.get(0).getName(), superHeroesDTOMocks.get(0).getName()),
+                () -> assertEquals(superHeroeDTOS.get(1).getId(), superHeroesDTOMocks.get(1).getId()),
+                () -> assertEquals(superHeroeDTOS.get(1).getBirthday(), superHeroesDTOMocks.get(1).getBirthday()),
+                () -> assertEquals(superHeroeDTOS.get(1).getName(), superHeroesDTOMocks.get(1).getName()));
     }
 
     @Test
@@ -83,10 +102,19 @@ public class SuperHeroeServiceTest {
     @DisplayName("Validar que se devuelve una lista de Superheroe con el nombre pasado por parametro")
     public void whenFindNameLikeReturnSuperHeroes(){
         String name = "man";
-        when(superHeroeRepository.findByNameLike(name)).thenReturn(utilsTest.buildSuperheroes());
+        List<SuperHeroe> superHeroes = utilsTest.buildSuperheroes();
+        List<SuperHeroeDTO> superHeroesDTOMocks = utilsTest.buildSuperheroeDTOS();
+        when(superHeroeRepository.findByNameLike(name)).thenReturn(superHeroes);
+        when(superHeroMapper.toDTO(superHeroes)).thenReturn(superHeroesDTOMocks);
 
-        List<SuperHeroeDTO> superHeroes = superHeroeService.findByNameLike(name);
+        List<SuperHeroeDTO> superHeroeDTOS = superHeroeService.findByNameLike(name);
         assertEquals(superHeroes.size(), 2);
+        assertAll(() -> assertEquals(superHeroeDTOS.get(0).getId(), superHeroesDTOMocks.get(0).getId()),
+                () -> assertEquals(superHeroeDTOS.get(0).getBirthday(), superHeroesDTOMocks.get(0).getBirthday()),
+                () -> assertEquals(superHeroeDTOS.get(0).getName(), superHeroesDTOMocks.get(0).getName()),
+                () -> assertEquals(superHeroeDTOS.get(1).getId(), superHeroesDTOMocks.get(1).getId()),
+                () -> assertEquals(superHeroeDTOS.get(1).getBirthday(), superHeroesDTOMocks.get(1).getBirthday()),
+                () -> assertEquals(superHeroeDTOS.get(1).getName(), superHeroesDTOMocks.get(1).getName()));
 
     }
 
@@ -106,16 +134,16 @@ public class SuperHeroeServiceTest {
     public void whenUpdateIsOk(){
         SuperHeroeDTO superHeroeDTO = utilsTest.buildSuperHeroeDTO();
         SuperHeroe superHeroeMockOld = utilsTest.buildSuperHeroe();
-        SuperHeroe superHeroeMockNew = utilsTest.buildSuperHeroe();
-        superHeroeMockNew.setName("SUPERMANCITO");
 
         when(superHeroeRepository.findById(superHeroeDTO.getId())).thenReturn(Optional.of(superHeroeMockOld));
-        when(superHeroeRepository.save(superHeroeMockNew)).thenReturn(superHeroeMockNew);
+        superHeroeMockOld.setName("SUPERMANCITO");
+
+        when(superHeroeRepository.save(superHeroeMockOld)).thenReturn(superHeroeMockOld);
 
         superHeroeService.update(superHeroeDTO);
 
         verify(superHeroeRepository).findById(superHeroeDTO.getId());
-        verify(superHeroeRepository).save(superHeroeMockNew);
+        verify(superHeroeRepository).save(superHeroeMockOld);
     }
 
     @Test
@@ -132,7 +160,7 @@ public class SuperHeroeServiceTest {
         verify(superHeroeRepository).findById(superHeroeDTO.getId());
 
         String actual = exception.getMessage();
-        String expected = "El super heroe con el id 1 no existe";
+        String expected = NOT_EXIST_SUPER_HEROE_MESSAGE.replace("#","1");
         assertEquals(expected, actual);
 
     }
@@ -164,7 +192,7 @@ public class SuperHeroeServiceTest {
 
         verify(superHeroeRepository).findById(id);
         String actual = exception.getMessage();
-        String expected = "El super heroe con el id 1 no existe";
+        String expected = NOT_EXIST_SUPER_HEROE_MESSAGE.replace("#","1");
         assertEquals(expected, actual);
     }
 
