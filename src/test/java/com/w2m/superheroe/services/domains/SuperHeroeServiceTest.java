@@ -8,6 +8,7 @@ import com.w2m.superheroe.models.entities.dtos.SuperHeroeDTO;
 import com.w2m.superheroe.repositories.SuperHeroeRepository;
 import com.w2m.superheroe.services.domains.impl.SuperHeroeServiceImpl;
 import com.w2m.superheroe.services.mapper.SuperHeroMapper;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
