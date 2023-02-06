@@ -16,6 +16,7 @@ import static com.w2m.superheroe.utils.Messages.NOT_EXIST_SUPER_HEROE_MESSAGE;
 @Service
 public class SuperHeroeServiceImpl implements SuperHeroeService {
 
+    public static final String LIKE = "%#%";
     private SuperHeroeRepository superHeroeRepository;
 
     private SuperHeroMapper superHeroMapper;
@@ -40,7 +41,7 @@ public class SuperHeroeServiceImpl implements SuperHeroeService {
 
     @Override
     public List<SuperHeroeDTO> findByNameLike(String name) {
-        return superHeroMapper.toDTO(superHeroeRepository.findByNameLike(name));
+        return superHeroMapper.toDTO(superHeroeRepository.findByNameLike(LIKE.replace("#",name.toUpperCase())));
     }
 
     @Override

@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.w2m.superheroe.UtilsTest;
 import com.w2m.superheroe.configuration.SecurityConfig;
+import com.w2m.superheroe.exceptions.SuperHeroeException;
 import com.w2m.superheroe.models.entities.dtos.SuperHeroeDTO;
 import com.w2m.superheroe.services.domains.SuperHeroeService;
 import com.w2m.superheroe.services.security.TokenService;
+import com.w2m.superheroe.utils.Messages;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -119,6 +122,49 @@ public class SuperHeroeControllerTest {
                         .header("Authorization", "Bearer " + getToken()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+        verify(superHeroeService).delete(1L);
+
+    }
+
+    @Test
+    public void whenGetSuperHeroeNotExists() throws Exception {
+
+        when(superHeroeService.findById(1L)).thenThrow(new SuperHeroeException(Messages.NOT_EXIST_SUPER_HEROE_MESSAGE));
+
+        mockMvc.perform(get("/super-heroes/1").contentType(MediaType.APPLICATION_JSON )
+                        .header("Authorization", "Bearer " + getToken()))
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    public void whenGetSuperHeroeAllFailBecauseTokenInvalid() throws Exception {
+
+        when(superHeroeService.findAll()).thenReturn(utilsTest.buildSuperheroeDTOS());
+
+        mockMvc.perform(get("/super-heroes").contentType(MediaType.APPLICATION_JSON )
+                        .header("Authorization", "Bearer ddadasdasdasdas"))
+                .andExpect(status().isUnauthorized());
+    }
+    @Test
+    public void whenUpdateSuperHeroeFailBecauseIdNull() throws Exception {
+
+        SuperHeroeDTO superHeroeDTO = utilsTest.buildSuperHeroeDTO(null,2020,"prueba");
+
+        mockMvc.perform(patch("/super-heroes").contentType(MediaType.APPLICATION_JSON )
+                        .header("Authorization", "Bearer " + getToken())
+                        .content(objectMapper.writeValueAsString(superHeroeDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void whenDeleteSuperHeroeFailBecauseDBNotFound() throws Exception {
+        doThrow(new RuntimeException("Not found database")).when(superHeroeService).delete(1L);
+
+        mockMvc.perform(delete("/super-heroes/1").contentType(MediaType.APPLICATION_JSON )
+                        .header("Authorization", "Bearer " + getToken()))
+                .andExpect(status().isInternalServerError());
 
         verify(superHeroeService).delete(1L);
 

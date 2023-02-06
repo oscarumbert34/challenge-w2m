@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static com.w2m.superheroe.services.domains.impl.SuperHeroeServiceImpl.LIKE;
 import static com.w2m.superheroe.utils.Messages.NOT_EXIST_SUPER_HEROE_MESSAGE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -104,7 +105,7 @@ public class SuperHeroeServiceTest {
         String name = "man";
         List<SuperHeroe> superHeroes = utilsTest.buildSuperheroes();
         List<SuperHeroeDTO> superHeroesDTOMocks = utilsTest.buildSuperheroeDTOS();
-        when(superHeroeRepository.findByNameLike(name)).thenReturn(superHeroes);
+        when(superHeroeRepository.findByNameLike(LIKE.replace("#",name.toUpperCase()))).thenReturn(superHeroes);
         when(superHeroMapper.toDTO(superHeroes)).thenReturn(superHeroesDTOMocks);
 
         List<SuperHeroeDTO> superHeroeDTOS = superHeroeService.findByNameLike(name);
@@ -122,7 +123,7 @@ public class SuperHeroeServiceTest {
     @DisplayName("Validar que se devuelve una lista vacia de Superheroe con el nombre pasado por parametro")
     public void whenFindNameLikeReturnEmpty(){
         String name = "man";
-        when(superHeroeRepository.findByNameLike(name)).thenReturn(List.of());
+        when(superHeroeRepository.findByNameLike(LIKE.replace("#",name.toUpperCase()))).thenReturn(List.of());
 
         List<SuperHeroeDTO> superHeroes = superHeroeService.findByNameLike(name);
         assertEquals(superHeroes.size(), 0);
