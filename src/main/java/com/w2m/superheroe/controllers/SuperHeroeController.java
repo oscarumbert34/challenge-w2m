@@ -1,5 +1,6 @@
 package com.w2m.superheroe.controllers;
 
+import com.w2m.superheroe.aspects.Log;
 import com.w2m.superheroe.models.entities.dtos.SuperHeroeDTO;
 import com.w2m.superheroe.services.domains.SuperHeroeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,28 +28,33 @@ public class SuperHeroeController {
     @Autowired
     private SuperHeroeService superHeroeService;
 
+    @Log
     @GetMapping(value="/{id}", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<SuperHeroeDTO> getSuperHeroe(@PathVariable("id")Long id){
         return ResponseEntity.status(HttpStatus.OK).body(superHeroeService.findById(id));
     }
 
+    @Log
     @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<SuperHeroeDTO>> getAll(){
         return ResponseEntity.status(HttpStatus.OK).body(superHeroeService.findAll());
     }
 
+    @Log
     @GetMapping(value="/name/{name}",produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<SuperHeroeDTO>> getByNameLike(@PathVariable("name")String name){
         List<SuperHeroeDTO> superHeroeDTOS = superHeroeService.findByNameLike(name);
         return ResponseEntity.status(HttpStatus.OK).body(superHeroeDTOS);
     }
 
+    @Log
     @PatchMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> update(@RequestBody @Validated SuperHeroeDTO superHeroeDTO){
         superHeroeService.update(superHeroeDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(UPDATE_SUPER_HEROE_OK);
     }
 
+    @Log
     @DeleteMapping(value="/{id}",produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<String> delete(@PathVariable("id")Long id){
         superHeroeService.delete(id);
