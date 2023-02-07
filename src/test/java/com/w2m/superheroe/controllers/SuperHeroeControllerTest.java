@@ -172,7 +172,7 @@ public class SuperHeroeControllerTest {
 
     private String getToken() throws Exception {
         MvcResult result = mockMvc.perform(post("/token")
-                        .with(httpBasic("jefe", "password")))
+                        .with(httpBasic("oscar", "password")))
                 .andExpect(status().isOk())
                 .andReturn();
 
