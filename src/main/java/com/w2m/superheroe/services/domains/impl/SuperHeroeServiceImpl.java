@@ -57,7 +57,10 @@ public class SuperHeroeServiceImpl implements SuperHeroeService {
     }
 
     @Override
-    @CacheEvict(cacheNames="superHeroeDTO", key="#superHeroeDTO.id" )
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "superHeroeDTO", key="#superHeroeDTO.id" ),
+            @CacheEvict(cacheNames = "superHeroeDTOS", allEntries = true),
+            @CacheEvict(cacheNames = "superHeroeDTOSName", allEntries = true)})
     public void update(SuperHeroeDTO superHeroeDTO) {
         SuperHeroe superHeroe = superHeroeRepository.findById(superHeroeDTO.getId())
                 .orElseThrow(() -> new SuperHeroeException(NOT_EXIST_SUPER_HEROE_MESSAGE.replace("#", superHeroeDTO.getId().toString())));
