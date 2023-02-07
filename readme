@@ -19,5 +19,3 @@ Esta aplicacion administra los super heroes que se encuentras en la base de dato
 
 ## Url de swagger
     http://localhost:8080/v1/swagger-ui/index.html#/home-controller
-## Url de h2
-    http://localhost:8080/v1/h2-console/login.jsp
