@@ -21,3 +21,7 @@ Esta aplicacion administra los super heroes que se encuentras en la base de dato
     http://localhost:8080/v1/swagger-ui/index.html#/home-controller
 ## Coleccion de pruebas
     w2m.postman_collection.json
+    
+## login
+  user:oscar
+  password:password
