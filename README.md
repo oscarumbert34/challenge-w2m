@@ -23,5 +23,7 @@ Esta aplicacion administra los super heroes que se encuentras en la base de dato
     w2m.postman_collection.json
     
 ## login
-  user:oscar
-  password:password
+* user: oscar
+* password: password
+  
+  
